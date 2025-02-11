@@ -28,31 +28,26 @@ func handlerChirpsValidate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// replace bad words
-	cleanedBody := replaceBadWords(params.Body)
+	badWords := map[string]struct{}{
+		"kerfuffle": {},
+		"sharbert":  {},
+		"fornax":    {},
+	}
+	cleaned := getCleanedBody(params.Body, badWords)
 
 	respondWithJSON(w, http.StatusOK, returnVals{
-		CleanedBody: cleanedBody,
+		CleanedBody: cleaned,
 	})
 }
 
-func replaceBadWords(body string) string {
+func getCleanedBody(body string, badWords map[string]struct{}) string {
 	words := strings.Split(body, " ")
-	badWords := []string{"kerfuffle", "sharbert", "fornax"}
-	var cleanWords []string
-	for _, word := range words {
-		isClean := true
-		for _, badWord := range badWords {
-			if strings.ToLower(word) == badWord {
-				isClean = false
-				break
-			}
-		}
-		if isClean {
-			cleanWords = append(cleanWords, word)
-		} else {
-			cleanWords = append(cleanWords, "****")
+	for i, word := range words {
+		loweredWord := strings.ToLower(word)
+		if _, ok := badWords[loweredWord]; ok {
+			words[i] = "****"
 		}
 	}
-	return strings.Join(cleanWords, " ")
+	cleaned := strings.Join(words, " ")
+	return cleaned
 }
