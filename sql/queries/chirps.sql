@@ -9,7 +9,7 @@ VALUES (
 )
 RETURNING *;
 
--- name: ListChirps :many
+-- name: GetChirps :many
 SELECT * from chirps
 ORDER BY created_at ASC;
 
